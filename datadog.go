@@ -69,9 +69,6 @@ type Options struct {
 
 	// Tags specifies a set of global tags to attach to each metric.
 	Tags []string
-
-	// Type specifies the service type used for tracing.
-	Type string
 }
 
 func (o *Options) onError(err error) {

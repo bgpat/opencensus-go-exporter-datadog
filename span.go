@@ -46,13 +46,14 @@ func canonicalCodeString(code int32) string {
 // convertSpan takes an OpenCensus span and returns a Datadog span.
 func (e *traceExporter) convertSpan(s *trace.SpanData) *ddSpan {
 	startNano := s.StartTime.UnixNano()
+	serviceType, _ := s.Attributes[serviceTypeKey].(string)
 	span := &ddSpan{
 		TraceID:  binary.BigEndian.Uint64(s.SpanContext.TraceID[8:]),
 		SpanID:   binary.BigEndian.Uint64(s.SpanContext.SpanID[:]),
 		Name:     s.Name,
 		Resource: s.Name,
 		Service:  e.opts.Service,
-		Type:     e.opts.Type,
+		Type:     serviceType,
 		Start:    startNano,
 		Duration: s.EndTime.UnixNano() - startNano,
 		Metrics:  map[string]float64{samplingPriorityKey: ext.PriorityAutoKeep},
@@ -85,6 +86,7 @@ func (e *traceExporter) convertSpan(s *trace.SpanData) *ddSpan {
 const (
 	samplingPriorityKey  = "_sampling_priority_v1"
 	statusDescriptionKey = "opencensus.status_description"
+	serviceTypeKey       = "type"
 )
 
 func setTag(s *ddSpan, key string, val interface{}) {
